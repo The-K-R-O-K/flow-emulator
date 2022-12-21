@@ -15,7 +15,7 @@ require (
 	github.com/improbable-eng/grpc-web v0.12.0
 	github.com/logrusorgru/aurora v2.0.3+incompatible
 	github.com/onflow/cadence v0.30.0
-	github.com/onflow/flow-go v0.28.1-0.20221221162438-e00569b9d0bb
+	github.com/onflow/flow-go v0.28.1-0.20221221193734-f45a2fea0667
 	github.com/onflow/flow-go-sdk v0.30.1-0.20221214233640-37e11b82ac05
 	github.com/onflow/flow-go/crypto v0.24.4
 	github.com/onflow/flow-nft/lib/go/contracts v0.0.0-20220727161549-d59b1e547ac4
@@ -171,3 +171,5 @@ require (
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	lukechampine.com/blake3 v1.1.7 // indirect
 )
+
+// replace github.com/onflow/flow-go => ../flow-go
