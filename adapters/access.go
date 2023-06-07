@@ -30,6 +30,7 @@ import (
 	"google.golang.org/grpc/status"
 
 	"github.com/onflow/flow-go/access"
+	"github.com/onflow/flow-go/engine/common/rpc/convert"
 	flowgo "github.com/onflow/flow-go/model/flow"
 )
 
@@ -148,6 +149,13 @@ func (a *AccessAdapter) GetTransactionResult(
 	if err != nil {
 		return nil, convertError(err)
 	}
+
+	// Convert CCF events to JSON events
+	result.Events, err = ConvertCCFEventsToJsonEvents(result.Events)
+	if err != nil {
+		return nil, convertError(err)
+	}
+
 	return result, nil
 }
 
@@ -231,6 +239,15 @@ func (a *AccessAdapter) GetEventsForHeightRange(
 	if err != nil {
 		return nil, convertError(err)
 	}
+
+	// Convert CCF events to JSON events
+	for i := range events {
+		events[i].Events, err = ConvertCCFEventsToJsonEvents(events[i].Events)
+		if err != nil {
+			return nil, convertError(err)
+		}
+	}
+
 	return events, nil
 }
 
@@ -243,6 +260,15 @@ func (a *AccessAdapter) GetEventsForBlockIDs(
 	if err != nil {
 		return nil, convertError(err)
 	}
+
+	// Convert CCF events to JSON events
+	for i := range events {
+		events[i].Events, err = ConvertCCFEventsToJsonEvents(events[i].Events)
+		if err != nil {
+			return nil, convertError(err)
+		}
+	}
+
 	return events, nil
 }
 
@@ -266,6 +292,15 @@ func (a *AccessAdapter) GetTransactionResultByIndex(_ context.Context, blockID f
 	if len(results) < int(index) {
 		return nil, convertError(&types.TransactionNotFoundError{ID: flowgo.Identifier{}})
 	}
+
+	// Convert CCF events to JSON events
+	for i := range results {
+		results[i].Events, err = ConvertCCFEventsToJsonEvents(results[i].Events)
+		if err != nil {
+			return nil, convertError(err)
+		}
+	}
+
 	return results[index], nil
 }
 
@@ -282,6 +317,15 @@ func (a *AccessAdapter) GetTransactionResultsByBlockID(_ context.Context, blockI
 	if err != nil {
 		return nil, convertError(err)
 	}
+
+	// Convert CCF events to JSON events
+	for i := range result {
+		result[i].Events, err = ConvertCCFEventsToJsonEvents(result[i].Events)
+		if err != nil {
+			return nil, convertError(err)
+		}
+	}
+
 	return result, nil
 }
 
@@ -296,4 +340,18 @@ func (a *AccessAdapter) GetNodeVersionInfo(
 	error,
 ) {
 	return nil, fmt.Errorf("not supported")
+}
+
+func ConvertCCFEventsToJsonEvents(events []flowgo.Event) ([]flowgo.Event, error) {
+	converted := make([]flowgo.Event, 0, len(events))
+
+	for _, event := range events {
+		evt, err := convert.CcfEventToJsonEvent(event)
+		if err != nil {
+			return nil, err
+		}
+		converted = append(converted, *evt)
+	}
+
+	return converted, nil
 }
